@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) or die( 'Nope!' );
 
 // Main Plugin Class
-require plugin_dir_path( __FILE__ ) . 'includes/class-plugin-name.php';
+require plugin_dir_path( __FILE__ ) . 'includes/class-time-to-read.php';
 
 
 /**
@@ -21,7 +21,7 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-plugin-name.php';
 *
 */
 function activate_time_to_read() {
-    TimeToRead::activate();
+	Time_To_Read::activate();
 }
 
 /**
@@ -30,7 +30,7 @@ function activate_time_to_read() {
 *
 */
 function deactivate_time_to_read() {
-    TimeToRead::deactivate();
+	Time_To_Read::deactivate();
 }
 
 register_activation_hook( __FILE__, 'activate_time_to_read' );
@@ -41,8 +41,8 @@ register_deactivation_hook( __FILE__, 'deactivate_time_to_read' );
 *
 */
 function run_time_to_read() {
-    $plugin = new TimeToRead();
-    $plugin->run();
+	$plugin = new Time_To_Read();
+	$plugin->run();
 }
 
 // Here we go
