@@ -7,4 +7,4 @@ if ( !defined( 'WP_UNINSTALL_PLUGIN' ) )
 require plugin_dir_path( __FILE__ ) . 'includes/class-time-to-read.php';
 
 // Do our uninstall housekeeping
-TimeToRead::uninstall();
+Time_To_Read::uninstall();
