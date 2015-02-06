@@ -32,22 +32,6 @@ class Time_To_Read {
 	protected $options;
 
 	/**
-	* Option name for our one option
-	*
-	* @access protected
-	* @var string $opt1
-	*/
-	protected static $opt1 = 'avg_wpm';
-
-	/**
-	* Default words per minute value
-	*
-	* @access protected
-	* @var string $default_wpm
-	*/
-	protected static $default_wpm = 250;
-
-	/**
 	* Handles any requirements when the plugin is activated.
 	*
 	* @access public
@@ -69,7 +53,7 @@ class Time_To_Read {
 
 	/**
 	* Handles any housekeeping that takes place
-	* when the plugin is deactivated.
+	* when the plugin is uninstalled.
 	*
 	* @access public
 	*/
@@ -85,7 +69,7 @@ class Time_To_Read {
 	*/
 	public static function add_options() {
 		if( !get_option( 't2r_options' ) ) {
-			update_option( 't2r_options', array( self::$opt1 => self::$default_wpm ) );
+			update_option( 't2r_options', array( 'avg_wpm' => DEFAULT_AVG_WPM ) );
 		}
 	}
 
@@ -93,8 +77,7 @@ class Time_To_Read {
 	* The class constructor.
 	*
 	* Set the plugin name and the plugin version that can be used throughout the plugin.
-	* Load the dependencies, define the locale, and set the hooks for the Dashboard and
-	* the public-facing side of the site.
+	* Load the dependencies, and grab out plugin options.
 	*
 	* @access public
 	*/
@@ -119,13 +102,10 @@ class Time_To_Read {
 	/**
 	* Define the locale for this plugin for internationalization.
 	*
-	* Uses the Plugin_Name_i18n class in order to set the domain and to register the hook
-	* with WordPress.
-	*
 	* @access private
 	*/
 	private function set_locale() {
-		add_action( 'plugins_loaded', array( $this, 'load_plugin_textdomain' ) );
+		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 	}
 
 	/**
@@ -133,9 +113,9 @@ class Time_To_Read {
 	*
 	* @access public
 	*/
-	public function load_plugin_textdomain() {
+	public function load_textdomain() {
 		load_plugin_textdomain(
-			$this->get_plugin_name(),
+			$this->plugin_name,
 			false,
 			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
 		);
@@ -148,8 +128,8 @@ class Time_To_Read {
 	*/
 	private function register_admin_hooks() {
 		$plugin_admin = new Time_To_Read_Admin( 
-			$this->get_plugin_name(), 
-			$this->get_version(),
+			$this->plugin_name, 
+			$this->version,
 			$this->options
 		);
 		add_action( 'admin_menu', array( $plugin_admin, 'add_menu' ) );
@@ -166,38 +146,36 @@ class Time_To_Read {
 	}
 
 	/**
-	* Run the loader to execute all of the hooks with WordPress.
+	* Callback to add our actual Time to Read paragraph tag
+	* to post content via filter.
 	*
 	* @access public
-	* @var $content string A post content string.
+	* @param $content string A post content string.
+	* @return string Our tag plus the original content.
 	*/
 	public function add_time_to_read( $content ) {
 		$time = round( $this->word_count( $content ) / $this->get_avg_wpm() );
 		if ( $time < 1){
 			$time = '<1';
 		}
-		return "<p class='time-to-read'>$time min read</p>" . $content;
+		return "<p class='time-to-read'>$time " . __( 'min read', $this->plugin_name ) . "</p>" . $content;
 	}
 
 	/**
 	* Returns the average words per minute setting value.
 	*
 	* @access private
+	* @return int Average words per minute setting
 	*/
 	private function get_avg_wpm() {
-		$wpm = $this->options[$this::$opt1];
-		if( !$wpm ){
-			// If we get here, somehow our options were deleted, so add them.
-			$this->add_options();
-			$wpm = $this->options[$this::$opt1];
-		}
-		return intval( $wpm );
+		return intval( $this->options['avg_wpm'] );
 	}
 
 	/**
-	* Returns the word count for a string
+	* Gets the word count for a string
 	*
 	* @access private
+	* @return int Number of words in the given string.
 	*/
 	private function word_count( $words ) {
 		$count = str_word_count( $words );
@@ -216,25 +194,5 @@ class Time_To_Read {
 		$this->set_locale();
 		$this->register_admin_hooks();
 		$this->register_public_hooks();
-	}
-
-	/**
-	* Retrieve the plugin name.
-	*
-	* @access public
-	* @return string The name of the plugin.
-	*/
-	public function get_plugin_name() {
-		return $this->plugin_name;
-	}
-
-	/**
-	* Retrieve the plugin version.
-	*
-	* @access public
-	* @return string The version number of the plugin.
-	*/
-	public function get_version() {
-		return $this->version;
 	}
 }

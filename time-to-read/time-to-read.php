@@ -11,6 +11,9 @@
 
 defined( 'ABSPATH' ) or die( 'Nope!' );
 
+// Define any constants here
+define( 'DEFAULT_AVG_WPM', 250 );
+
 // Main Plugin Class
 require plugin_dir_path( __FILE__ ) . 'includes/class-time-to-read.php';
 
